@@ -70,9 +70,15 @@ class SequentialPrediction:
         self.set_new_eval(xnew, znew)
         self.update_params()
 
+    class ParameterUpdateError(RuntimeError):
+        pass
+
     def update_params(self):
-        if self.xi is not None and self.zi is not None:
-            self.model.select_params(self.xi, self.zi, force_param_initial_guess=self.force_param_initial_guess)
+        try:
+            if self.xi is not None and self.zi is not None:
+                self.model.select_params(self.xi, self.zi, force_param_initial_guess=self.force_param_initial_guess)
+        except BaseException as e:
+            raise ParameterUpdateError()
 
     def predict(self, xt, convert_out=True):
         if self.zi.ndim == 1:
